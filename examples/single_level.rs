@@ -9,7 +9,7 @@ fn main() {
     let mut current_level_data: Option<Level> = None;
 
     // load the main project file
-    let project = Project::load_project(BASE_DIR.to_owned() + PROJECT_FILE);
+    let project = Project::load_project(BASE_DIR.to_owned() + PROJECT_FILE).unwrap();
 
     // loop through all the levels and get the relative path to
     // the level that matches the current_level_id

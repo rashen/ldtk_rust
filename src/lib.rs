@@ -17,25 +17,28 @@ mod json_1_5_3;
 pub use json_1_5_3::*;
 use std::{
     fs::File,
-    path::{Path, PathBuf}, io::BufReader,
+    io::BufReader,
+    path::{Path, PathBuf},
 };
 
 // this struct name has to match the auto-generated top-level struct.
 // Currently mirroring the LDTK Haxe API as best I can figure out.
 impl Project {
-    pub fn new<P: AsRef<Path>>(f: P) -> Self {
+    pub fn new<P: AsRef<Path>>(f: P) -> Option<Self> {
         let mut o = Project::load_project(&f);
-        if o.external_levels {
-            o.load_external_levels(f);
+        if let Some(ref mut o) = o {
+            if o.external_levels {
+                o.load_external_levels(f);
+            }
         }
         o
     }
 
     // Read in an LDTK project file
-    pub fn load_project<P: AsRef<Path>>(f: P) -> Self {
+    pub fn load_project<P: AsRef<Path>>(f: P) -> Option<Self> {
         //let file = File::open(f).expect("project file not found");
-        let file = BufReader::new(File::open(f).expect("level file not found"));
-        let o: Project = serde_json::from_reader(file).expect("error while reading");
+        let file = BufReader::new(File::open(f).ok()?);
+        let o: Option<Project> = serde_json::from_reader(file).ok();
         o
     }
 
@@ -114,6 +117,6 @@ pub struct LdtkJson;
 #[allow(deprecated)]
 impl LdtkJson {
     pub fn new(f: String) -> Project {
-        Project::new(f)
+        Project::new(f).unwrap()
     }
 }
